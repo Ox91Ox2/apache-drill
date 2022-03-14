@@ -1,0 +1,87 @@
+version: '3.9'
+services:
+
+  drill1:
+    image: drill
+    build: .
+    environment:
+      NODENAME: drill1
+      ZOOKEEPER: zoo1:2181,zoo1:2181,zoo1:2181
+      DRILL_HOME: /opt/apache-drill/
+    # command: debug
+    ports:
+      - "8047:8047"
+      - "8048:8048"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    restart: always
+  drill2:
+    image: drill
+    build: .
+    environment:
+      NODENAME: drill1
+      ZOOKEEPER: zoo1:2181,zoo1:2181,zoo1:2181
+      DRILL_HOME: /opt/apache-drill/
+    # command: debug
+    ports:
+      - "18047:8047"
+      - "18048:8048"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    restart: always
+  drill3:
+    image: drill
+    build: .
+    environment:
+      NODENAME: drill1
+      ZOOKEEPER: zoo1:2181,zoo1:2181,zoo1:2181
+      DRILL_HOME: /opt/apache-drill/
+    # command: debug
+    ports:
+      - "28047:8047"
+      - "28048:8048"
+    depends_on:
+      - zoo1
+      - zoo2
+      - zoo3
+    restart: always
+  zoo1:
+    image: zookeeper:3.5.5
+    restart: always
+    hostname: zoo1
+    ports:
+      - 12181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888;0.0.0.0:2181 server.2=zoo2:2888:3888;0.0.0.0:2181 server.3=zoo3:2888:3888;0.0.0.0:2181
+
+  zoo2:
+    image: zookeeper:3.5.5
+    restart: always
+    hostname: zoo2
+    ports:
+      - 22181:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  zoo3:
+    image: zookeeper:3.5.5
+    restart: always
+    hostname: zoo3
+    ports:
+      - 32181:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+  hue:
+    image: gethue/hue:latest
+    ports:
+      - 18888:8888
+    depends_on:
+      - drill1
+    restart: always
